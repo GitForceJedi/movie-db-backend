@@ -9,7 +9,18 @@ import { setupSwagger } from './swagger/swagger.js';
 import { errorHandler } from './middleware/errorMiddleware.js';
 dotenv.config();
 const app = express();
-app.use(cors());
+const allowedOrigins = process.env.CORS_ORIGIN || '';
+app.use(cors({
+    origin: (origin, callback) => {
+        if (!origin || allowedOrigins.split(',').includes(origin)) {
+            callback(null, true);
+        }
+        else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+}));
 app.use(helmet());
 app.use(express.json());
 // Swagger
