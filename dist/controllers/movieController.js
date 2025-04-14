@@ -10,9 +10,11 @@ function validateMovieInput(input) {
 export const getAllMovies = async (req, res) => {
     try {
         const { rating, stars, genre, inTheaters, page = '1', limit = '10', sort = 'title', order = 'asc', } = req.query;
-        let query = `SELECT m.*, ROUND(AVG(r.stars)) AS avg_stars
+        let query = `
+      SELECT m.*, ROUND(AVG(r.stars)) AS avg_stars
       FROM "Movie" m
-      LEFT JOIN "Review" r ON m.id = r."movieId"`;
+      LEFT JOIN "Review" r ON m.id = r."movieId"
+      `;
         const params = [];
         const conditions = [];
         if (rating) {
@@ -27,8 +29,9 @@ export const getAllMovies = async (req, res) => {
             params.push(inTheaters === 'true');
             conditions.push(`m."inTheaters" = $${params.length}`);
         }
-        query += conditions.length ? ' WHERE ' + conditions.join(' AND ') : '';
-        query += ' GROUP BY m.id';
+        query += conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+        query += ` GROUP BY m.id 
+     `;
         if (stars) {
             params.push(parseInt(stars));
             query += ` HAVING ROUND(AVG(r.stars)) = $${params.length}`;
@@ -36,7 +39,8 @@ export const getAllMovies = async (req, res) => {
         const validSortFields = ['title', 'releaseDate', 'rating', 'avg_stars'];
         const sortField = validSortFields.includes(sort) ? sort : 'title';
         const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
-        query += ` ORDER BY "${sortField}" ${sortOrder}`;
+        query += ` ORDER BY "${sortField}" ${sortOrder}
+    `;
         const offset = (parseInt(page) - 1) * parseInt(limit);
         query += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
         params.push(limit);

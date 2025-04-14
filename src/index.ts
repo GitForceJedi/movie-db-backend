@@ -12,7 +12,7 @@ import { errorHandler } from './middleware/errorMiddleware.js';
 dotenv.config();
 
 const app = express();
-const allowedOrigins = process.env.CORS_ORIGIN || '';
+const allowedOrigins = process.env.CORS_ORIGIN || 'http://localhost:5173';
 
 app.use(
   cors({

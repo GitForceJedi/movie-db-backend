@@ -34,9 +34,11 @@ export const getAllMovies = async (req: Request, res: Response) => {
       order = 'asc',
     } = req.query;
 
-    let query = `SELECT m.*, ROUND(AVG(r.stars)) AS avg_stars
+    let query = `
+      SELECT m.*, ROUND(AVG(r.stars)) AS avg_stars
       FROM "Movie" m
-      LEFT JOIN "Review" r ON m.id = r."movieId"`;
+      LEFT JOIN "Review" r ON m.id = r."movieId"
+      `;
 
     const params: any[] = [];
     const conditions: string[] = [];
@@ -56,8 +58,9 @@ export const getAllMovies = async (req: Request, res: Response) => {
       conditions.push(`m."inTheaters" = $${params.length}`);
     }
 
-    query += conditions.length ? ' WHERE ' + conditions.join(' AND ') : '';
-    query += ' GROUP BY m.id';
+    query += conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
+    query += ` GROUP BY m.id 
+     `;
 
     if (stars) {
       params.push(parseInt(stars as string));
@@ -68,7 +71,8 @@ export const getAllMovies = async (req: Request, res: Response) => {
     const sortField = validSortFields.includes(sort as string) ? sort : 'title';
     const sortOrder = order === 'desc' ? 'DESC' : 'ASC';
 
-    query += ` ORDER BY "${sortField}" ${sortOrder}`;
+    query += ` ORDER BY "${sortField}" ${sortOrder}
+    `;
 
     const offset = (parseInt(page as string) - 1) * parseInt(limit as string);
     query += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
